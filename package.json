@@ -1,0 +1,19 @@
+{
+  "name": "workflowx-backend",
+  "version": "1.0.0",
+  "description": "WorkflowX is a developer productivity tool.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sumitjangir179/workflowx-backend.git"
+  },
+  "author": "sumitjangir179",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sumitjangir179/workflowx-backend/issues"
+  },
+  "homepage": "https://github.com/sumitjangir179/workflowx-backend#readme"
+}
