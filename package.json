@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/sumitjangir179/workflowx-backend/issues"
   },
-  "homepage": "https://github.com/sumitjangir179/workflowx-backend#readme"
+  "homepage": "https://github.com/sumitjangir179/workflowx-backend#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
