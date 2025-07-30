@@ -4,6 +4,12 @@ const sequelize = new Sequelize(`${process.env.DB_URI}/${DB_NAME}`);
 
 const User = sequelize.define('User',
     {
+        id : {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        }, 
+
         firstName: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -20,10 +26,9 @@ const User = sequelize.define('User',
             unique: true,
         },
 
-        userName: {
+        avatar: {
             type: DataTypes.STRING,
-            allowNull: false,
-            unique: true,
+            allowNull: true,
         },
 
         password: {
