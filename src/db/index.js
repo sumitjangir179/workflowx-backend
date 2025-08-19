@@ -1,10 +1,9 @@
-import { Sequelize } from "sequelize";
-import { DB_NAME } from "../contants.js";
+import { sequelize } from "../constants.js";
 
 const connetDb = async () => {
     try {
-        const sequelize = new Sequelize(`${process.env.DB_URI}/${DB_NAME}`);
         await sequelize.authenticate();
+        await sequelize.sync({ force: true }); // Use force: true only for development to drop and recreate tables
         console.log("Database connection established successfully.");
 
     } catch (error) {

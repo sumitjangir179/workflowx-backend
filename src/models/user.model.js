@@ -1,6 +1,6 @@
-import { DataTypes, Sequelize } from "sequelize";
+import { DataTypes } from "sequelize";
+import {sequelize } from "../constants.js";
 
-const sequelize = new Sequelize(`${process.env.DB_URI}/${DB_NAME}`);
 
 const User = sequelize.define('User',
     {
