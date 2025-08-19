@@ -7,7 +7,22 @@ app.use(express.json({limit: '16mb'}));
 
 // route declaration
 import userRoutes from './routes/user.route.js';
+import ApiError from './utils/ApiError.js';
 
 app.use('/api/v1/users', userRoutes);
 
 export default app;
+
+app.use((err, req, res, next) => {
+    if(err instanceof ApiError){
+        return res.status(err.statusCode).json({
+            success: false,
+            message: err.message
+        });
+    }
+
+    return res.status(500).json({
+        success: false,
+        message: 'Internal Server Error'
+    });
+})
