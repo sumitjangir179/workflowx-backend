@@ -1,14 +1,14 @@
 import { DataTypes } from "sequelize";
-import {sequelize } from "../constants.js";
-
+import { sequelize } from "../constants.js";
+import bcrypt from 'bcrypt';
 
 const User = sequelize.define('User',
     {
-        id : {
+        id: {
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
-        }, 
+        },
 
         firstName: {
             type: DataTypes.STRING,
@@ -49,5 +49,17 @@ const User = sequelize.define('User',
 
 
 );
+
+User.beforeSave(async (user, options) => {
+    console.log('beforeSave hook triggered');
+    console.log('user', user);
+    console.log('options', options);
+
+    if (!user.changed('password')) return 
+
+    user.password = await bcrypt.hash(user.password, 10)
+    return
+
+})
 
 export default User;
