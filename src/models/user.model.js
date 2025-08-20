@@ -1,6 +1,7 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../constants.js";
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const User = sequelize.define('User',
     {
@@ -51,15 +52,23 @@ const User = sequelize.define('User',
 );
 
 User.beforeSave(async (user, options) => {
-    console.log('beforeSave hook triggered');
-    console.log('user', user);
-    console.log('options', options);
-
-    if (!user.changed('password')) return 
-
+    if (!user.changed('password')) return
     user.password = await bcrypt.hash(user.password, 10)
     return
-
 })
+
+User.prototype.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+}
+
+User.prototype.generateAccessToken = function () {
+    return jwt.sign({ id: this.id, email: this.email, firstName: this.firstName, lastName: this.lastName }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION })
+}
+
+User.prototype.generateRefreshToken = function () {
+    return jwt.sign({ id: this.id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRATION })
+}
+
+
 
 export default User;
