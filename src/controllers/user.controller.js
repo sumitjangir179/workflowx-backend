@@ -87,8 +87,20 @@ const loginUser = asyncHandler(async (req, res) => {
 })
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-    console.log('current user', req.user)
     return res.status(200).json(new ApiResponse(200, req.user, 'Current user fetched successfully'));
 });
 
-export { registerUser, loginUser, getCurrentUser }
+const logoutUser = asyncHandler(async (req, res) => {
+    const { id } = req.user;
+    const user = await User.findByPk(id);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+    user.refreshToken = null;
+    await user.save();
+    const options = { httpOnly: true, secure: true };
+    return res.status(200).clearCookie('accessToken', options).clearCookie('refreshToken', options).json(new ApiResponse(200, {}, 'User logged out successfully'));
+})
+
+
+export { registerUser, loginUser, getCurrentUser, logoutUser }
