@@ -9,14 +9,9 @@ const User = sequelize.define('User',
             type: DataTypes.INTEGER,
             primaryKey: true,
             autoIncrement: true
-        },
+        }, 
 
-        firstName: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-
-        lastName: {
+        name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -62,7 +57,7 @@ User.prototype.isPasswordCorrect = async function (password) {
 }
 
 User.prototype.generateAccessToken = function () {
-    return jwt.sign({ id: this.id, email: this.email, firstName: this.firstName, lastName: this.lastName }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION })
+    return jwt.sign({ id: this.id, email: this.email, fullName: this.fullName,}, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRATION })
 }
 
 User.prototype.generateRefreshToken = function () {
