@@ -1,6 +1,5 @@
 import { DataTypes } from 'sequelize';
 import { sequelize } from '../constants.js';
-import { use } from 'react';
 
 const ProjectSchema = sequelize.define(
   'Project',
