@@ -24,7 +24,7 @@ const createProject = asyncHandler(async (req, res) => {
     throw new ApiError(409, 'Project with this name already exists');
   }
 
-  const project = await ProjectSchema.create({ name, userId: req?.user?.id, });
+  const project = await ProjectSchema.create({ name, userId: req?.user?.id });
 
   if (!project) {
     throw new ApiError(500, 'Internal server error while creating project');
@@ -35,4 +35,26 @@ const createProject = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, project, 'Project created successfully'));
 });
 
-export { createProject };
+const getAllProjects = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 10 } = req.body;
+
+  const offset = (page - 1) * limit;
+  
+  const { count, rows: projects } = await ProjectSchema.findAndCountAll({
+    limit,
+    offset,
+    where: { userId: req?.user?.id },
+  });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { projects, count },
+        'Projects fetched successfully',
+      ),
+    );
+});
+
+export { createProject, getAllProjects };
