@@ -2,7 +2,10 @@ import ProjectSchema from '../models/project.model.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
-import { createProjectSchema } from '../validations/project.validation.js';
+import {
+  createProjectSchema,
+  getProjectDetailSchema,
+} from '../validations/project.validation.js';
 
 const createProject = asyncHandler(async (req, res) => {
   const validationResult = await createProjectSchema.safeParseAsync(req.body);
@@ -39,7 +42,7 @@ const getAllProjects = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10 } = req.body;
 
   const offset = (page - 1) * limit;
-  
+
   const { count, rows: projects } = await ProjectSchema.findAndCountAll({
     limit,
     offset,
@@ -57,4 +60,29 @@ const getAllProjects = asyncHandler(async (req, res) => {
     );
 });
 
-export { createProject, getAllProjects };
+const getProjectDetail = asyncHandler(async (req, res) => {
+  const validationResult = await getProjectDetailSchema.safeParseAsync(
+    req.params,
+  );
+
+  if (validationResult.error) {
+    throw new ApiError(
+      400,
+      validationResult.error?.issues.map((issue) => issue.message).join(', '),
+    );
+  }
+
+  const { projectId } = validationResult.data;
+
+  const project = await ProjectSchema.findOne({ where: { id: projectId } });
+
+  if (!project) {
+    throw new ApiError(404, 'Project not found');
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, project, 'Project fetched successfully'));
+});
+
+export { createProject, getAllProjects, getProjectDetail };
