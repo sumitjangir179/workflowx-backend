@@ -5,6 +5,7 @@ import asyncHandler from '../utils/asyncHandler.js';
 import {
   createProjectSchema,
   getProjectDetailSchema,
+  updateProjectSchema,
 } from '../validations/project.validation.js';
 
 const createProject = asyncHandler(async (req, res) => {
@@ -85,4 +86,78 @@ const getProjectDetail = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, project, 'Project fetched successfully'));
 });
 
-export { createProject, getAllProjects, getProjectDetail };
+const updateProjectDetail = asyncHandler(async (req, res) => {
+  const validationProjectResult = await getProjectDetailSchema.safeParseAsync(
+    req.params,
+  );
+
+  if (validationProjectResult.error) {
+    throw new ApiError(
+      400,
+      validationProjectResult.error?.issues
+        .map((issue) => issue.message)
+        .join(', '),
+    );
+  }
+
+  const validationResult = await updateProjectSchema.safeParseAsync(req.body);
+
+  if (validationResult.error) {
+    throw new ApiError(
+      400,
+      validationResult.error?.issues.map((issue) => issue.message).join(', '),
+    );
+  }
+
+  const { projectId } = validationProjectResult.data;
+  const { name, description } = validationResult.data;
+
+  const [affectedRows, [updatedProject]] = await ProjectSchema.update(
+    { name, description },
+    { where: { id: projectId }, returning: true },
+  );
+
+  if (!affectedRows) {
+    throw new ApiError(404, 'Project not found or no changes made');
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, updatedProject, 'Project updated successfully'));
+});
+
+const deleteProject = asyncHandler(async (req, res) => {
+  const validationResult = await getProjectDetailSchema.safeParseAsync(
+    req.params,
+  );
+
+  if (validationResult.error) {
+    throw new ApiError(
+      400,
+      validationResult.error?.issues.map((issue) => issue.message).join(', '),
+    );
+  }
+
+  const { projectId } = validationResult.data;
+
+  const count = await ProjectSchema.destroy({
+    where: { id: projectId },
+  });
+
+
+  if (!count) {
+    throw new ApiError(404, 'Project not found or no changes made');
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, 'Project deleted successfully'));
+});
+
+export {
+  createProject,
+  getAllProjects,
+  getProjectDetail,
+  updateProjectDetail,
+  deleteProject,
+};
