@@ -41,7 +41,7 @@ const registerUser = asyncHandler(async (req, res) => {
     defaults: { email, password },
   });
 
-  if (!createdUser) { 
+  if (!createdUser) {
     throw new ApiError(409, 'User with this credentials already exists');
   }
 
@@ -51,11 +51,16 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const validateResult = await registerUserSchema.safeParseAsync(req.body);
 
-  if ([email, password].some((field) => field.trim() === '')) {
-    throw new ApiError(400, 'All fields are required');
+  if (validateResult.error) {
+    throw new ApiError(
+      400,
+      validateResult.error.issues.map((issue) => issue.message).join(', '),
+    );
   }
+
+  const { email, password } = validateResult.data;
 
   const user = await User.findOne({ where: { email } });
 
