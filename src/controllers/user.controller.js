@@ -2,6 +2,7 @@ import User from '../models/user.model.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import ApiResponse from '../utils/ApiResponse.js';
+import { registerUserSchema } from '../validations/user.validation.js';
 
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
@@ -14,9 +15,6 @@ const generateAccessAndRefreshTokens = async (userId) => {
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
-    console.log('accrsstoken', accessToken);
-    console.log('refresh', refreshToken);
-
     user.refreshToken = refreshToken;
     await user.save();
 
@@ -27,29 +25,29 @@ const generateAccessAndRefreshTokens = async (userId) => {
 };
 
 const registerUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const validateResult = await registerUserSchema.safeParseAsync(req.body);
 
-  if ([email, password].some((field) => field.trim() === '')) {
-    throw new ApiError(400, 'All fields are required');
+  if (validateResult.error) {
+    throw new ApiError(
+      400,
+      validateResult.error.issues.map((issue) => issue.message).join(', '),
+    );
   }
 
-  const existedUser = await User.findOne({ where: { email } });
+  const { email, password } = validateResult.data;
 
-  if (existedUser) {
+  const [user, createdUser] = await User.findOrCreate({
+    where: { email },
+    defaults: { email, password },
+  });
+
+  if (!createdUser) { 
     throw new ApiError(409, 'User with this credentials already exists');
-  }
-
-  const user = await User.create({ email, password });
-
-  const createdUser = await User.findByPk(user?.id);
-
-  if (!createdUser) {
-    throw new ApiError(500, 'Internal server error while register user');
   }
 
   return res
     .status(200)
-    .json(new ApiResponse(201, createdUser, 'User register successfully'));
+    .json(new ApiResponse(201, user, 'User register successfully'));
 });
 
 const loginUser = asyncHandler(async (req, res) => {
