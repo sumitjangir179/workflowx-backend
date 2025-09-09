@@ -7,14 +7,6 @@ export const createProjectSchema = z.object({
     .max(50, 'Project name must be at most 100 characters long'),
 });
 
-export const getProjectDetailSchema = z.object({
-  projectId: z
-    .string()
-    .refine(
-      (val) => !isNaN(parseInt(val, 10)) && /^\d+$/.test(val),
-      'Invalid project id',
-    ),
-});
 
 export const updateProjectSchema = z.object({
   name: z

@@ -62,18 +62,7 @@ const getAllProjects = asyncHandler(async (req, res) => {
 });
 
 const getProjectDetail = asyncHandler(async (req, res) => {
-  const validationResult = await getProjectDetailSchema.safeParseAsync(
-    req.params,
-  );
-
-  if (validationResult.error) {
-    throw new ApiError(
-      400,
-      validationResult.error?.issues.map((issue) => issue.message).join(', '),
-    );
-  }
-
-  const { projectId } = validationResult.data;
+  const { projectId } = req.params;
 
   const project = await ProjectSchema.findOne({ where: { id: projectId } });
 
@@ -87,19 +76,6 @@ const getProjectDetail = asyncHandler(async (req, res) => {
 });
 
 const updateProjectDetail = asyncHandler(async (req, res) => {
-  const validationProjectResult = await getProjectDetailSchema.safeParseAsync(
-    req.params,
-  );
-
-  if (validationProjectResult.error) {
-    throw new ApiError(
-      400,
-      validationProjectResult.error?.issues
-        .map((issue) => issue.message)
-        .join(', '),
-    );
-  }
-
   const validationResult = await updateProjectSchema.safeParseAsync(req.body);
 
   if (validationResult.error) {
@@ -109,7 +85,7 @@ const updateProjectDetail = asyncHandler(async (req, res) => {
     );
   }
 
-  const { projectId } = validationProjectResult.data;
+  const { projectId } = req.params;
   const { name, description } = validationResult.data;
 
   const [affectedRows, [updatedProject]] = await ProjectSchema.update(
@@ -127,23 +103,11 @@ const updateProjectDetail = asyncHandler(async (req, res) => {
 });
 
 const deleteProject = asyncHandler(async (req, res) => {
-  const validationResult = await getProjectDetailSchema.safeParseAsync(
-    req.params,
-  );
-
-  if (validationResult.error) {
-    throw new ApiError(
-      400,
-      validationResult.error?.issues.map((issue) => issue.message).join(', '),
-    );
-  }
-
   const { projectId } = validationResult.data;
 
   const count = await ProjectSchema.destroy({
     where: { id: projectId },
   });
-
 
   if (!count) {
     throw new ApiError(404, 'Project not found or no changes made');
