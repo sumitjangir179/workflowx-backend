@@ -4,7 +4,6 @@ import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import {
   createProjectSchema,
-  getProjectDetailSchema,
   updateProjectSchema,
 } from '../validations/project.validation.js';
 
